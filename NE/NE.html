@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEIBE宵夜選擇器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: black;
+            color: yellow;
+            padding: 50px;
+        }
+        h1 {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        button {
+            font-size: 20px;
+            padding: 15px 30px;
+            cursor: pointer;
+            background-color: yellow;
+            color: black;
+            border: none;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: orange;
+        }
+        #result {
+            font-size: 24px;
+            margin-top: 30px;
+            font-weight: bold;
+            color: #ff4444;
+            min-height: 40px;
+        }
+        #spinner {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+            color: white;
+            min-height: 30px;
+            transition: opacity 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>MEIBE宵夜選擇器</h1>
+    <p>不知道吃什麼？讓轉盤幫你決定！</p>
+    <button onclick="chooseRestaurant()">開始選擇</button>
+    
+    <div id="spinner"></div>
+    <div id="result"></div>
+
+    <script>
+        function chooseRestaurant() {
+            const restaurants = [
+                "牛肉麵•雞湯 - 敦化南路 (03:00)",
+                "小品雅廚 - 中原街 (05:00)",
+                "點心攤 - 萬大路 (02:30)",
+                "大台北豆漿大王 - 汀洲路 (10:30)",
+                "旗魚新竹米粉 - 延平北路 (05:00)",
+                "嘉義鮑魚海產粥 - 延平北路 (03:00)",
+                "台北橋頭筒仔米糕 - 延平北路 (11:00)",
+                "雅香石頭火鍋 - 成都路 (04:00)",
+                "程味珍 - 西寧南路 (02:30)",
+                "西門麵店 - 內江街 (24小時)",
+                "開封街香菇肉粥 - 開封街 (03:00)",
+                "阿財虱目魚肚 - 內江街 (05:00)",
+                "小吳牛肉麵 - 洛陽街 (24小時)",
+                "阿添羊肉羹 - 峨眉街 (04:30)",
+                "一蘭拉麵 - 松仁路 (24小時)",
+                "柳家涼麵 - 光復南路 (04:30)",
+                "東引小吃店 - 南京東路 (04:00)",
+                "劉媽媽涼麵 - 市民大道 (05:00)",
+                "小李子 - 復興南路 (06:00)",
+                "京星飲茶 - 敦化南路 (24小時)",
+                "福德涼麵 - 興安街 (24小時)",
+                "德惠鵝肉 - 錦州街 (03:00)",
+                "蘇記玉米排骨湯 - 林森北路 (24小時)",
+                "Green Door綠門 - 德惠街 (03:00)",
+                "滷三塊 - 北投 (02:00)",
+                "獨特花生湯 - 興隆路 (11:00)",
+                "七張米粉湯 - 新店 (03:00)",
+                "永和豆漿 - 中和連城路 (11:00)",
+                "阿國麵線 - 板橋 (03:30)",
+                "小上海小吃 - 三重 (24小時)",
+                "一蘭拉麵 - 信義新天地 (24小時)"
+            ];
+
+            let spinner = document.getElementById("spinner");
+            let result = document.getElementById("result");
+
+            spinner.innerText = "🎰 轉盤轉動中...";
+            result.innerText = "";
+
+            let spinCount = 15; // 轉動次數
+            let interval = 100; // 每次切換間隔 (毫秒)
+
+            let currentIndex = 0;
+            let spin = setInterval(() => {
+                spinner.innerText = restaurants[currentIndex];
+                currentIndex = (currentIndex + 1) % restaurants.length;
+                spinCount--;
+
+                if (spinCount <= 0) {
+                    clearInterval(spin);
+                    let randomIndex = Math.floor(Math.random() * restaurants.length);
+                    let selectedRestaurant = restaurants[randomIndex];
+
+                    spinner.innerText = "";
+                    result.innerText = "👉 " + selectedRestaurant;
+                }
+            }, interval);
+        }
+    </script>
+
+</body>
+</html>
