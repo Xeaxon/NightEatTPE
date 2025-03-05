@@ -1,169 +1,195 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEIBE 台北宵夜抽卡器</title>
+    <title>MEIBE - 台北宵夜選擇</title>
     <style>
         body {
             background-color: black;
             color: yellow;
             text-align: center;
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
         }
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+
+        h1 {
             margin-top: 50px;
         }
-        .card {
-            width: 300px;
-            height: 150px;
+
+        #card-container {
             perspective: 1000px;
-            cursor: pointer;
+            display: inline-block;
+            margin-top: 50px;
         }
-        .card-inner {
-            width: 100%;
-            height: 100%;
+
+        .card {
+            width: 220px;
+            height: 300px;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.8s;
+            transition: transform 1s;
+            cursor: pointer;
         }
-        .card.flipped .card-inner {
+
+        .card.flip {
             transform: rotateY(180deg);
         }
-        .card-front, .card-back {
-            position: absolute;
+
+        .card .front, .card .back {
             width: 100%;
             height: 100%;
+            position: absolute;
             backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid yellow;
-            border-radius: 10px;
-            font-size: 20px;
-            background-color: black;
         }
-        .card-front {
-            color: yellow;
+
+        .card .front {
+            background: url('card.jpg') center/cover no-repeat;
         }
-        .card-back {
-            transform: rotateY(180deg);
-            background-image: url('https://xeaxon.github.io/nighteattpe/NEcard/card.jpg'); /* 換成你的圖片檔名 */
-            background-size: cover;
-            background-position: center;
+
+        .card .back {
+            background: black;
             color: white;
             display: flex;
             flex-direction: column;
+            align-items: center;
             justify-content: center;
+            font-size: 16px;
+            transform: rotateY(180deg);
+            padding: 20px;
+            box-sizing: border-box;
             text-align: center;
-            padding: 10px;
-            background-blend-mode: darken;
-            backdrop-filter: blur(5px);
         }
-        .result-text {
-            background: rgba(0, 0, 0, 0.6);
-            padding: 10px;
-            border-radius: 5px;
+
+        .store-name {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 8px;
         }
+
+        .store-info {
+            font-size: 14px;
+        }
+
         button {
-            margin-top: 20px;
-            padding: 10px 20px;
+            margin-top: 30px;
+            padding: 15px 30px;
             font-size: 18px;
             background-color: yellow;
+            color: black;
             border: none;
             cursor: pointer;
-            border-radius: 5px;
+        }
+
+        button:disabled {
+            background-color: gray;
+            cursor: not-allowed;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: orange;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            color: yellow;
         }
     </style>
 </head>
 <body>
-    <h1>MEIBE<br>台北宵夜抽卡器</h1>
-    <div class="container">
+    <h1>MEIBE - 台北宵夜選擇</h1>
+    <div id="card-container">
         <div class="card" id="card" onclick="resetCard()">
-            <div class="card-inner">
-                <div class="card-front">隨機選擇中...</div>
-                <div class="card-back">
-                    <div id="result" class="result-text">
-    <div id="restaurant-name" style="font-size: 24hrspx; font-weight: bold;"></div>
-    <div id="restaurant-location" style="font-size: 18px; margin-top: 5px;">📍 </div>
-</div>
-                </div>
-            </div>
+            <div class="front"></div>
+            <div class="back" id="result"></div>
         </div>
-        <button id="drawBtn" onclick="pickRestaurant()">抽宵夜</button>
     </div>
-    <script>
-        let alreadyPicked = false;
-        
-        const restaurants = [
-            "牛肉麵•雞湯-敦化南路 03:00",
-            "小品雅廚-中原街 05:00",
-            "點心攤-萬大路 02:30",
-            "大台北豆漿大王-汀洲路 10:30",
-            "旗魚新竹米粉-延平北路 05:00",
-            "嘉義鮑魚海產粥-延平北路 03:00",
-            "台北橋頭筒仔米糕-延平北路 11:00",
-            "雅香石頭火鍋-成都路 04:00",
-            "程味珍-西寧南路 02:30",
-            "西門麵店-內江街 24hrs",
-            "開封街香菇肉粥-開封街 03:00",
-            "阿財虱目魚肚-內江街 05:00",
-            "小吳牛肉麵-洛陽街 24hrs",
-            "阿添羊肉羹-峨眉街 04:30",
-            "一蘭拉麵-松仁路 24hrs",
-            "柳家涼麵-光復南路 04:30",
-            "東引小吃店-南京東路 04:00",
-            "劉媽媽涼麵-市民大道 05:00",
-            "小李子-復興南路 06:00",
-            "京星飲茶-敦化南路 24hrs",
-            "福德涼麵-興安街 24hrs",
-            "德惠鵝肉-錦州街 03:00",
-            "蘇記玉米排骨湯-林森北路 24hrs",
-            "Green Door綠門-德惠街 03:00",
-            "滷三塊-北投 02:00",
-            "獨特花生湯-興隆路 11:00",
-            "七張米粉湯-新店 03:00",
-            "永和豆漿-中和連城路 11:00",
-            "阿國麵線-板橋 03:30",
-            "小上海小吃-三重 24hrs",
-            "一蘭拉麵-信義新天地 24hrs",
-            "又一村-林森北路 01:00"
-        ];
+    <br>
+    <button id="drawButton" onclick="tryFlipCard()">抽宵夜</button>
 
-        function pickRestaurant() {
-            if (alreadyPicked) {
-                alert("已抽過，請點擊卡面翻至背面後再重新抽卡");
-                return;
+    <footer>
+        ©Hsi Huan MEI ,Taiwan. All rights reserved.
+    </footer>
+
+    <script>
+        let isCardFlipped = false;
+
+        function tryFlipCard() {
+            let drawButton = document.getElementById("drawButton");
+            if (drawButton.disabled) {
+                alert("請點擊卡面將其蓋回");
+            } else {
+                flipCard();
             }
-            
-            const card = document.getElementById("card");
-            const resultDiv = document.getElementById("result");
-            const randomIndex = Math.floor(Math.random() * restaurants.length);
-            const selectedRestaurant = restaurants[randomIndex];
-            
-            const parts = selectedRestaurant.split('-');
-    const name = parts[0];
-    const location = parts[1] ? parts[1].trim() : '';
-    const time = parts[2] ? parts[2].trim() : '';
-    document.getElementById("restaurant-name").textContent = name;
-    document.getElementById("restaurant-location").textContent = "📍 " + location + " " + time;
-            card.classList.add("flipped");
-            alreadyPicked = true;
+        }
+
+        function flipCard() {
+            if (isCardFlipped) return;
+
+            let card = document.getElementById("card");
+            let result = document.getElementById("result");
+            let drawButton = document.getElementById("drawButton");
+
+           const stores = [
+    { name: "牛肉麵•雞湯", location: "敦化南路", time: "營業至 03:00" },
+    { name: "小品雅廚", location: "中原街", time: "營業至 05:00" },
+    { name: "點心攤", location: "萬大路", time: "營業至 02:30" },
+    { name: "大台北豆漿大王", location: "汀洲路", time: "營業至 10:30" },
+    { name: "旗魚新竹米粉", location: "延平北路", time: "營業至 05:00" },
+    { name: "嘉義鮑魚海產粥", location: "延平北路", time: "營業至 03:00" },
+    { name: "台北橋頭筒仔米糕", location: "延平北路", time: "營業至 11:00" },
+    { name: "雅香石頭火鍋", location: "成都路", time: "營業至 04:00" },
+    { name: "程味珍", location: "西寧南路", time: "營業至 02:30" },
+    { name: "西門麵店", location: "內江街", time: "24小時" },
+    { name: "開封街香菇肉粥", location: "開封街", time: "營業至 03:00" },
+    { name: "阿財虱目魚肚", location: "內江街", time: "營業至 05:00" },
+    { name: "小吳牛肉麵", location: "洛陽街", time: "24小時" },
+    { name: "阿添羊肉羹", location: "峨眉街", time: "營業至 04:30" },
+    { name: "一蘭拉麵", location: "松仁路", time: "24小時" },
+    { name: "柳家涼麵", location: "光復南路", time: "營業至 04:30" },
+    { name: "東引小吃店", location: "南京東路", time: "營業至 04:00" },
+    { name: "劉媽媽涼麵", location: "市民大道", time: "營業至 05:00" },
+    { name: "小李子", location: "復興南路", time: "營業至 06:00" },
+    { name: "京星飲茶", location: "敦化南路", time: "24小時" },
+    { name: "福德涼麵", location: "興安街", time: "24小時" },
+    { name: "德惠鵝肉", location: "錦州街", time: "營業至 03:00" },
+    { name: "蘇記玉米排骨湯", location: "林森北路", time: "24小時" },
+    { name: "Green Door綠門", location: "德惠街", time: "營業至 03:00" },
+    { name: "滷三塊", location: "北投", time: "營業至 02:00" },
+    { name: "獨特花生湯", location: "興隆路", time: "營業至 11:00" },
+    { name: "七張米粉湯", location: "新店", time: "營業至 03:00" },
+    { name: "永和豆漿", location: "中和連城路", time: "營業至 11:00" },
+    { name: "阿國麵線", location: "板橋", time: "營業至 03:30" },
+    { name: "小上海小吃", location: "三重", time: "24小時" },
+    { name: "一蘭拉麵", location: "信義新天地", time: "24小時" },
+    { name: "又一村", location: "林森北路", time: "營業至 01:00" }
+];
+
+
+            let randomStore = stores[Math.floor(Math.random() * stores.length)];
+            result.innerHTML = `<div class="store-name">${randomStore.name}</div><div class="store-info">${randomStore.location} | ${randomStore.time}</div>`;
+
+            card.classList.add("flip");
+            isCardFlipped = true;
+            drawButton.disabled = true;
         }
 
         function resetCard() {
-            const card = document.getElementById("card");
-            if (alreadyPicked) {
-                card.classList.remove("flipped");
-                alreadyPicked = false;
-            }
+            if (!isCardFlipped) return;
+
+            let card = document.getElementById("card");
+            let drawButton = document.getElementById("drawButton");
+
+            card.classList.remove("flip");
+            isCardFlipped = false;
+
+            drawButton.disabled = false;
         }
     </script>
-    <footer style="margin-top: 20px; font-size: 14px; color: yellow;">
-        © Hsi Huan MEI, Taiwan. All rights reserved.
-    </footer>
 </body>
 </html>
