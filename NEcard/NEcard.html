@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEIBE 台北宵夜抽卡器</title>
+    <style>
+        body {
+            background-color: black;
+            color: yellow;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        .card {
+            width: 300px;
+            height: 150px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s;
+        }
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid yellow;
+            border-radius: 10px;
+            font-size: 20px;
+            background-color: black;
+        }
+        .card-front {
+            color: yellow;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+            background-image: url('NEcard/card.jpg'); /* 換成你的圖片檔名 */
+            background-size: cover;
+            background-position: center;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            background-blend-mode: darken;
+            backdrop-filter: blur(5px);
+        }
+        .result-text {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: yellow;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>MEIBE<br>台北宵夜抽卡器</h1>
+    <div class="container">
+        <div class="card" id="card" onclick="resetCard()">
+            <div class="card-inner">
+                <div class="card-front">隨機選擇中...</div>
+                <div class="card-back">
+                    <div id="result" class="result-text">
+    <div id="restaurant-name" style="font-size: 24hrspx; font-weight: bold;"></div>
+    <div id="restaurant-location" style="font-size: 18px; margin-top: 5px;">📍 </div>
+</div>
+                </div>
+            </div>
+        </div>
+        <button id="drawBtn" onclick="pickRestaurant()">抽宵夜</button>
+    </div>
+    <script>
+        let alreadyPicked = false;
+        
+        const restaurants = [
+            "牛肉麵•雞湯-敦化南路 03:00",
+            "小品雅廚-中原街 05:00",
+            "點心攤-萬大路 02:30",
+            "大台北豆漿大王-汀洲路 10:30",
+            "旗魚新竹米粉-延平北路 05:00",
+            "嘉義鮑魚海產粥-延平北路 03:00",
+            "台北橋頭筒仔米糕-延平北路 11:00",
+            "雅香石頭火鍋-成都路 04:00",
+            "程味珍-西寧南路 02:30",
+            "西門麵店-內江街 24hrs",
+            "開封街香菇肉粥-開封街 03:00",
+            "阿財虱目魚肚-內江街 05:00",
+            "小吳牛肉麵-洛陽街 24hrs",
+            "阿添羊肉羹-峨眉街 04:30",
+            "一蘭拉麵-松仁路 24hrs",
+            "柳家涼麵-光復南路 04:30",
+            "東引小吃店-南京東路 04:00",
+            "劉媽媽涼麵-市民大道 05:00",
+            "小李子-復興南路 06:00",
+            "京星飲茶-敦化南路 24hrs",
+            "福德涼麵-興安街 24hrs",
+            "德惠鵝肉-錦州街 03:00",
+            "蘇記玉米排骨湯-林森北路 24hrs",
+            "Green Door綠門-德惠街 03:00",
+            "滷三塊-北投 02:00",
+            "獨特花生湯-興隆路 11:00",
+            "七張米粉湯-新店 03:00",
+            "永和豆漿-中和連城路 11:00",
+            "阿國麵線-板橋 03:30",
+            "小上海小吃-三重 24hrs",
+            "一蘭拉麵-信義新天地 24hrs",
+            "又一村-林森北路 01:00"
+        ];
+
+        function pickRestaurant() {
+            if (alreadyPicked) {
+                alert("已抽過，請點擊卡面翻至背面後再重新抽卡");
+                return;
+            }
+            
+            const card = document.getElementById("card");
+            const resultDiv = document.getElementById("result");
+            const randomIndex = Math.floor(Math.random() * restaurants.length);
+            const selectedRestaurant = restaurants[randomIndex];
+            
+            const parts = selectedRestaurant.split('-');
+    const name = parts[0];
+    const location = parts[1] ? parts[1].trim() : '';
+    const time = parts[2] ? parts[2].trim() : '';
+    document.getElementById("restaurant-name").textContent = name;
+    document.getElementById("restaurant-location").textContent = "📍 " + location + " " + time;
+            card.classList.add("flipped");
+            alreadyPicked = true;
+        }
+
+        function resetCard() {
+            const card = document.getElementById("card");
+            if (alreadyPicked) {
+                card.classList.remove("flipped");
+                alreadyPicked = false;
+            }
+        }
+    </script>
+    <footer style="margin-top: 20px; font-size: 14px; color: yellow;">
+        © Hsi Huan MEI, Taiwan. All rights reserved.
+    </footer>
+</body>
+</html>
